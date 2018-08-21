@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Crystal's Book Review Site
+{% endblock %}
+
+{% block body %}
+    <h1>Welcome to Crystal's Book Review Site!</h1>
+    <h2>Login or sign up to get started.</h2>
+    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('signup') }}">Sign Up</a>
+
+    {% for message in get_flashed_messages() %}
+        {{ message }}
+    {% endfor %}
+{% endblock %}

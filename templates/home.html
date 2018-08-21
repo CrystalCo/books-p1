@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search Books
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-header">
+            <h1>Search a Book</h1>
+        </div>
+
+      <form action="{{ url_for('search') }}" method="post">
+
+          <div class="form-group">
+              <select class="form-control" name="book_id">
+                  {% for book in books %}
+                      <option value="{{ book.id }}">{{ flight.origin }} to {{ flight.destination }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+
+          <div class="form-group">
+              <input class="form-control" name="name" placeholder="Passenger Name">
+          </div>
+
+          <div class="form-group">
+              <button class="btn btn-primary">Book Flight</button>
+          </div>
+
+      </form>
+
+      <p>Click <a href="{{ url_for('logout') }}">here</a> to logout.</p>
+      {% for message in get_flashed_messages() %}
+          {{ message }}
+      {% endfor %}
+    </div>
+{% endblock %}

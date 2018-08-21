@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sign Up
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Sign Up</h1>
+        <br>
+        <form action="" method="post">
+            <input type="text" placeholder="Username" name="username" >
+            <input type="text" placeholder="Password" name="password" >
+            <button class="btn btn-default">Submit</button>
+        </form>
+        {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }} </p>
+        {% endif %}
+        <div>
+            <a href="{{ url_for('login') }}">Login</a>
+        </div>
+
+        {% for message in get_flashed_messages() %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endblock %}
