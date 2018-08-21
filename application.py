@@ -67,10 +67,20 @@ def logout():
     flash("You were just logged out!")
     return render_template("index.html")
 
-@app.route("/signup", methods=["POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
-    error = None
-    username = request.form.get("username")
-    password = request.form.get("password")
-    flash("You are now registered.  Please login to review your books.")
-    return render_template("signup.html", username=username, password=password)
+        """Sign Up"""
+        # Get form information.
+        firstname = request.form.get("firstname")
+        lastname = request.form.get("lastname")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        email = request.form.get("email")
+
+        # Make sure username does not already exist.
+        if db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).rowcount == 1:
+            return render_template("error.html", message="That username already exists.")
+        db.execute("INSERT INTO users (firstname, lastname, username, password, email) VALUES (:firstname, :lastname, :username, :password, :email)",
+                {"firstname": firstname, "lastname": lastname, "username": username, "password": password, "email": email})
+        db.commit()
+        return render_template("success.html")
