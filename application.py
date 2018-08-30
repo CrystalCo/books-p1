@@ -1,9 +1,8 @@
 import os
 
 
-from flask import Flask, render_template, request, session, flash
+from flask import Flask, render_template, request, session
 from flask_session import Session
-from functools import wraps
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -27,41 +26,41 @@ db = scoped_session(sessionmaker(bind=engine))
 ## print(res.json())
 
 ## Login Required decorator
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('login'))
-    return wrap
+##def login_required(f):
+##    @wraps(f)
+##    def wrap(*args, **kwargs):
+##        if 'logged_in' in session:
+##            return f(*args, **kwargs)
+##        else:
+##            return redirect(url_for('login'))
+##    return wrap
 
 @app.route("/")
 def index():
-    books = db.execute("SELECT * FROM books").fetchone()
-    return render_template("index.html", books=books)
+    return render_template("index.html")
 
 # use decorators to link the function to a url
 @app.route("/home")
-@login_required
+##@login_required
 def home():
-    return render_template("home.html")
+    books = db.execute("SELECT * FROM books").fetchone()
+    return render_template("home.html", books=books)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+        ## if  request.form['username'] != 'admin' or request.form['password'] != 'admin':
+        if db.execute("SELECT * FROM users WHERE username != request.form['username'] OR password != request.form['password']", {"username": username, "password": password}).rowcount == 1:
             error = 'Invalid Credentials.  Please try again.'
         else:
-            session['logged_in'] = True
-            flash('You were just logged in!')
+            ## session['logged_in'] = True
+            ## flash('You were just logged in!')
             return redirect(url_for('home'))
     return render_template('login.html', error=error)
 
 @app.route("/logout")
-@login_required
+##@login_required
 def logout():
     session.pop("logged_in", None)
     flash("You were just logged out!")
@@ -75,12 +74,14 @@ def signup():
         lastname = request.form.get("lastname")
         username = request.form.get("username")
         password = request.form.get("password")
-        email = request.form.get("email")
+        password2 = request.form.get("password2")
 
         # Make sure username does not already exist.
         if db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).rowcount == 1:
             return render_template("error.html", message="That username already exists.")
-        db.execute("INSERT INTO users (firstname, lastname, username, password, email) VALUES (:firstname, :lastname, :username, :password, :email)",
-                {"firstname": firstname, "lastname": lastname, "username": username, "password": password, "email": email})
+        if password != password2:
+            return render_template("error.html", message="Please make sure your passwords are the same.")
+        db.execute("INSERT INTO users (firstname, lastname, username, password, password2) VALUES (:firstname, :lastname, :username, :password, :password2)",
+                {"firstname": firstname, "lastname": lastname, "username": username, "password": password, "password2": password2})
         db.commit()
         return render_template("success.html")
